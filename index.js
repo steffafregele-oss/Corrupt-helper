@@ -1,3 +1,4 @@
+// Importuri
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField } = require('discord.js');
 const keepAlive = require('./keep_alive');
 keepAlive();
@@ -6,31 +7,31 @@ const client = new Client({
   intents: [
     GatewayIntentBits.Guilds, 
     GatewayIntentBits.GuildMessages, 
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildPresences
+    GatewayIntentBits.MessageContent
   ] 
 });
 
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
-const ADMIN_ROLE_ID = process.env.ADMIN_ROLE_ID || '1433970414706622504';
+const ADMIN_ROLE_ID = '1433970414706622504'; // rolul de staff/admin
 
 let ticketCount = 1;
 
+// Ready
 client.once('ready', () => {
-  console.log(`✅ Bot is online as ${client.user.tag}`);
+  console.log(`✅ Bot online ca ${client.user.tag}`);
 });
 
+// Comanda pentru panel
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
-  
-  if (message.content === '/create_ticket_panel') {
+
+  if (message.content === '!ticketpanel_set') {
     const embed = new EmbedBuilder()
-      .setTitle('SUPPORT TICKET SYSTEM')
+      .setTitle('🎫 SUPPORT TICKET SYSTEM')
       .setDescription(
         "Need Help? Click the button below to create a support ticket\n" +
         "Our staff team will assist you as soon as possible\n" +
-        "Please describe your issue clearly in the ticket\n" +
-        "Available 24/7 for your convenience!"
+        "Please describe your issue clearly in the ticket"
       )
       .setColor('#000000')
       .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif')
@@ -39,7 +40,7 @@ client.on('messageCreate', async (message) => {
     const button = new ButtonBuilder()
       .setCustomId('create_ticket')
       .setLabel('Create Ticket')
-      .setStyle(ButtonStyle.Secondary);
+      .setStyle(ButtonStyle.Secondary); // gri
 
     const row = new ActionRowBuilder().addComponents(button);
 
@@ -47,9 +48,11 @@ client.on('messageCreate', async (message) => {
   }
 });
 
+// Interacțiuni
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isButton()) return;
 
+  // Create ticket
   if (interaction.customId === 'create_ticket') {
     const channelName = `ticket-${String(ticketCount).padStart(3, '0')}`;
     ticketCount++;
@@ -67,29 +70,21 @@ client.on('interactionCreate', async (interaction) => {
     const closeButton = new ButtonBuilder()
       .setCustomId('close_ticket')
       .setLabel('Close Ticket')
-      .setStyle(ButtonStyle.Danger);
+      .setStyle(ButtonStyle.Danger); // roșu
 
     const row = new ActionRowBuilder().addComponents(closeButton);
 
-    const welcomeEmbed = new EmbedBuilder()
+    const embed = new EmbedBuilder()
       .setTitle('🎫 Ticket Created')
-      .setDescription(`<@${interaction.user.id}> created this ticket!\n\nPlease describe your issue and our staff will assist you shortly.`)
+      .setDescription(`<@${interaction.user.id}> created this ticket!\nPlease describe your issue and our staff will assist you shortly.`)
       .setColor('#FF0000')
       .setTimestamp();
 
-    await ticketChannel.send({ embeds: [welcomeEmbed], components: [row] });
+    await ticketChannel.send({ embeds: [embed], components: [row] });
     await interaction.reply({ content: `✅ Your ticket has been created: ${ticketChannel}`, ephemeral: true });
-
-    const filter = m => !m.author.bot;
-    const collector = ticketChannel.createMessageCollector({ filter, time: 10 * 60 * 1000 });
-
-    collector.on('end', async (collected) => {
-      if (collected.size === 0) {
-        await ticketChannel.delete().catch(() => {});
-      }
-    });
   }
 
+  // Close ticket
   if (interaction.customId === 'close_ticket') {
     await interaction.reply({ content: '🔒 Closing ticket...', ephemeral: true });
     setTimeout(async () => {
@@ -98,9 +93,9 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 
+// Login
 if (!TOKEN) {
-  console.error('❌ DISCORD_BOT_TOKEN is not set in environment variables!');
+  console.error('❌ DISCORD_BOT_TOKEN not set!');
   process.exit(1);
 }
-
 client.login(TOKEN);
