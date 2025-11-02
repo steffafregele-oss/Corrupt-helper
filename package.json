@@ -1,16 +1,17 @@
 {
   "name": "discord-ticket-bot",
   "version": "1.0.0",
-  "description": "Discord ticket bot with 24/7 uptime and automated support system",
+  "description": "Ticket bot for Discord with uptime keep-alive",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": ["discord", "ticket", "bot", "support"],
-  "author": "",
-  "license": "ISC",
+  "author": "YourName",
+  "license": "MIT",
   "dependencies": {
-    "discord.js": "^14.14.1",
-    "express": "^4.18.2"
-  }
+    "discord.js": "^14.14.0",
+    "express": "^4.18.2",
+    "node-fetch": "^3.3.1"
+  },
+  "type": "module"
 }
