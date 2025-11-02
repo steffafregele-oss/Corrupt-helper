@@ -10,7 +10,7 @@ const {
   PermissionsBitField 
 } = require('discord.js');
 
-const keepAlive = require('./keep_alive'); // import keep-alive
+const keepAlive = require('./keep_alive'); 
 keepAlive(); // pornește serverul keep-alive
 
 const client = new Client({ 
@@ -21,9 +21,9 @@ const client = new Client({
   ] 
 });
 
-// 2️⃣ Token și ID rol admin
-const TOKEN = process.env.DISCORD_BOT_TOKEN; // asigură-te că token-ul e corect în Variables
-const ADMIN_ROLE_ID = '1433970414706622504'; // rol admin
+// 2️⃣ Token și rol admin
+const TOKEN = process.env.DISCORD_BOT_TOKEN; // folosește variabila ta corectă
+const ADMIN_ROLE_ID = '1433970414706622504';
 
 // 3️⃣ Ticket counter
 let ticketCount = 1;
@@ -47,9 +47,9 @@ client.on('messageCreate', async (message) => {
         "Available 24/7 for your convenience!"
       )
       .setColor('#000000')
-      .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji în colț dreapta sus
-      .setImage('https://i.imgur.com/EHpQ9Iv.gif'); // banner
-
+      .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji animat colț dreapta sus
+      .setImage('https://i.imgur.com/wBQj8Ki.gif'); // banner jos
+     
     const button = new ButtonBuilder()
       .setCustomId('create_ticket')
       .setLabel('Create Ticket')
@@ -69,11 +69,9 @@ client.on('interactionCreate', async (interaction) => {
   if (interaction.customId === 'create_ticket') {
     await interaction.deferReply({ ephemeral: true }); // confirmăm că răspundem
     try {
-      // Creează numele canalului
       const channelName = `ticket-${String(ticketCount).padStart(3, '0')}`;
       ticketCount++;
 
-      // Creează canalul
       const ticketChannel = await interaction.guild.channels.create({
         name: channelName,
         type: ChannelType.GuildText,
@@ -84,25 +82,25 @@ client.on('interactionCreate', async (interaction) => {
         ]
       });
 
-      // Buton de închidere ticket
       const closeButton = new ButtonBuilder()
         .setCustomId('close_ticket')
         .setLabel('Close Ticket')
         .setStyle(ButtonStyle.Danger);
+
       const row = new ActionRowBuilder().addComponents(closeButton);
 
-      // Embed-ul în canalul ticket
       const embed = new EmbedBuilder()
         .setTitle('🎫 Ticket Created')
         .setDescription(`<@${interaction.user.id}> created this ticket! Please describe your issue.`)
         .setColor('#FF0000')
-        .setImage('https://i.imgur.com/EHpQ9Iv.gif') // banner în embed
+        .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji animat colț dreapta sus
+        .setImage('https://i.imgur.com/wBQj8Ki.gif') // banner jos
         .setTimestamp();
 
       await ticketChannel.send({ embeds: [embed], components: [row] });
 
-      // Trimite mesaj final userului
-      await interaction.editReply({ content: `✅ Your ticket has been created: ${ticketChannel}` });
+      // Mesaj ephemer pentru user că ticketul a fost creat
+      await interaction.editReply({ content: `✅ Your ticket has been created: ${ticketChannel}`, ephemeral: true });
 
     } catch (err) {
       console.error(err);
