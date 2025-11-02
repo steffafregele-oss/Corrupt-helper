@@ -1,4 +1,7 @@
 const { Client, GatewayIntentBits, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField } = require('discord.js');
+const keepAlive = require('./keep_alive');
+keepAlive();
+
 const client = new Client({ 
   intents: [
     GatewayIntentBits.Guilds, 
@@ -8,15 +11,12 @@ const client = new Client({
   ] 
 });
 
-const keepAlive = require('./keep_alive');
-keepAlive();
-
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
-const ADMIN_ROLE_ID = process.env.ADMIN_ROLE_ID;
+const ADMIN_ROLE_ID = process.env.ADMIN_ROLE_ID || '1433970414706622504';
 
 let ticketCount = 1;
 
-client.once('clientReady', () => {
+client.once('ready', () => {
   console.log(`✅ Bot is online as ${client.user.tag}`);
 });
 
@@ -97,5 +97,10 @@ client.on('interactionCreate', async (interaction) => {
     }, 2000);
   }
 });
+
+if (!TOKEN) {
+  console.error('❌ DISCORD_BOT_TOKEN is not set in environment variables!');
+  process.exit(1);
+}
 
 client.login(TOKEN);
