@@ -21,8 +21,8 @@ const client = new Client({
   ] 
 });
 
-// 2️⃣ Token și rol admin
-const TOKEN = process.env.DISCORD_BOT_TOKEN_TICKET; // token bot
+// 2️⃣ Token și ID rol admin
+const TOKEN = process.env.DISCORD_BOT_TOKEN; // asigură-te că token-ul e corect în Variables
 const ADMIN_ROLE_ID = '1433970414706622504'; // rol admin
 
 // 3️⃣ Ticket counter
@@ -47,8 +47,8 @@ client.on('messageCreate', async (message) => {
         "Available 24/7 for your convenience!"
       )
       .setColor('#000000')
-      .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif')
-      .setImage('https://i.imgur.com/EHpQ9Iv.gif');
+      .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji în colț dreapta sus
+      .setImage('https://i.imgur.com/EHpQ9Iv.gif'); // banner
 
     const button = new ButtonBuilder()
       .setCustomId('create_ticket')
@@ -67,45 +67,47 @@ client.on('interactionCreate', async (interaction) => {
 
   // Creează ticket
   if (interaction.customId === 'create_ticket') {
-    await interaction.deferReply({ ephemeral: true }); // evită eroarea "interacțiune a eșuat"
+    await interaction.deferReply({ ephemeral: true }); // confirmăm că răspundem
+    try {
+      // Creează numele canalului
+      const channelName = `ticket-${String(ticketCount).padStart(3, '0')}`;
+      ticketCount++;
 
-    const channelName = `ticket-${String(ticketCount).padStart(3, '0')}`;
-    ticketCount++;
+      // Creează canalul
+      const ticketChannel = await interaction.guild.channels.create({
+        name: channelName,
+        type: ChannelType.GuildText,
+        permissionOverwrites: [
+          { id: interaction.guild.roles.everyone, deny: [PermissionsBitField.Flags.ViewChannel] },
+          { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
+          { id: ADMIN_ROLE_ID, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
+        ]
+      });
 
-    const ticketChannel = await interaction.guild.channels.create({
-      name: channelName,
-      type: ChannelType.GuildText,
-      permissionOverwrites: [
-        { id: interaction.guild.roles.everyone, deny: [PermissionsBitField.Flags.ViewChannel] },
-        { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
-        { id: ADMIN_ROLE_ID, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
-      ]
-    });
+      // Buton de închidere ticket
+      const closeButton = new ButtonBuilder()
+        .setCustomId('close_ticket')
+        .setLabel('Close Ticket')
+        .setStyle(ButtonStyle.Danger);
+      const row = new ActionRowBuilder().addComponents(closeButton);
 
-    // Embed și buton în canalul ticket
-    const ticketEmbed = new EmbedBuilder()
-      .setTitle('🎫 SUPPORT TICKET SYSTEM')
-      .setDescription(
-        "Need Help? Click the button below to create a support ticket\n" +
-        "Our staff team will assist you as soon as possible\n" +
-        "Please describe your issue clearly in the ticket\n" +
-        "Available 24/7 for your convenience!"
-      )
-      .setColor('#000000')
-      .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif')
-      .setImage('https://i.imgur.com/EHpQ9Iv.gif');
+      // Embed-ul în canalul ticket
+      const embed = new EmbedBuilder()
+        .setTitle('🎫 Ticket Created')
+        .setDescription(`<@${interaction.user.id}> created this ticket! Please describe your issue.`)
+        .setColor('#FF0000')
+        .setImage('https://i.imgur.com/EHpQ9Iv.gif') // banner în embed
+        .setTimestamp();
 
-    const closeButton = new ButtonBuilder()
-      .setCustomId('close_ticket')
-      .setLabel('Close Ticket')
-      .setStyle(ButtonStyle.Danger);
+      await ticketChannel.send({ embeds: [embed], components: [row] });
 
-    const row = new ActionRowBuilder().addComponents(closeButton);
+      // Trimite mesaj final userului
+      await interaction.editReply({ content: `✅ Your ticket has been created: ${ticketChannel}` });
 
-    await ticketChannel.send({ content: `<@${interaction.user.id}>`, embeds: [ticketEmbed], components: [row] });
-
-    // Mesaj pentru user
-    await interaction.editReply({ content: `✅ Your ticket has been created: ${ticketChannel}` });
+    } catch (err) {
+      console.error(err);
+      await interaction.editReply({ content: '❌ There was an error creating your ticket.', ephemeral: true });
+    }
   }
 
   // Închide ticket
