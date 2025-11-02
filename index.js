@@ -22,7 +22,7 @@ const client = new Client({
 });
 
 // 2️⃣ Token și ID rol admin
-const TOKEN = process.env.DISCORD_BOT_TOKEN;
+const TOKEN = process.env.DISCORD_BOT_TOKEN_TICKET;
 const ADMIN_ROLE_ID = '1433970414706622504'; // rol admin
 
 // 3️⃣ Ticket counter
