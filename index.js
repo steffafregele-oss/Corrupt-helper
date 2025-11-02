@@ -22,7 +22,7 @@ const client = new Client({
 });
 
 // 2️⃣ Token și rol admin
-const TOKEN = process.env.DISCORD_BOT_TOKEN; // folosește variabila ta corectă
+const TOKEN = process.env.DISCORD_BOT_TOKEN; // folosește numele corect al variabilei
 const ADMIN_ROLE_ID = '1433970414706622504';
 
 // 3️⃣ Ticket counter
@@ -41,15 +41,15 @@ client.on('messageCreate', async (message) => {
     const embed = new EmbedBuilder()
       .setTitle('🎫 SUPPORT TICKET SYSTEM')
       .setDescription(
-        "Need Help? Click the button below to create a support ticket\n" +
-        "Our staff team will assist you as soon as possible\n" +
-        "Please describe your issue clearly in the ticket\n" +
+        "Need Help? Click the button below to create a support ticket.\n" +
+        "Our staff team will assist you as soon as possible.\n" +
+        "Please describe your issue clearly in the ticket.\n" +
         "Available 24/7 for your convenience!"
       )
       .setColor('#000000')
       .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji animat colț dreapta sus
-      .setImage('https://i.imgur.com/wBQj8Ki.gif'); // banner jos
-     
+      .setImage('https://i.imgur.com/wBQj8Ki.gif'); // banner
+
     const button = new ButtonBuilder()
       .setCustomId('create_ticket')
       .setLabel('Create Ticket')
@@ -67,20 +67,38 @@ client.on('interactionCreate', async (interaction) => {
 
   // Creează ticket
   if (interaction.customId === 'create_ticket') {
-    await interaction.deferReply({ ephemeral: true }); // confirmăm că răspundem
+    await interaction.deferReply({ ephemeral: true });
     try {
       const channelName = `ticket-${String(ticketCount).padStart(3, '0')}`;
       ticketCount++;
 
+      // Creează canalul cu permisiuni
       const ticketChannel = await interaction.guild.channels.create({
         name: channelName,
         type: ChannelType.GuildText,
         permissionOverwrites: [
           { id: interaction.guild.roles.everyone, deny: [PermissionsBitField.Flags.ViewChannel] },
-          { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
-          { id: ADMIN_ROLE_ID, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
+          { id: interaction.user.id, allow: [
+            PermissionsBitField.Flags.ViewChannel,
+            PermissionsBitField.Flags.SendMessages,
+            PermissionsBitField.Flags.ReadMessageHistory
+          ] },
+          { id: ADMIN_ROLE_ID, allow: [
+            PermissionsBitField.Flags.ViewChannel,
+            PermissionsBitField.Flags.SendMessages,
+            PermissionsBitField.Flags.ReadMessageHistory
+          ] }
         ]
       });
+
+      // Embed în canalul ticket
+      const ticketEmbed = new EmbedBuilder()
+        .setTitle('🎫 Ticket Created')
+        .setDescription(`<@${interaction.user.id}> created this ticket! Please describe your issue here in detail.`)
+        .setColor('#FF0000')
+        .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji colț dreapta sus
+        .setImage('https://i.imgur.com/wBQj8Ki.gif')
+        .setTimestamp();
 
       const closeButton = new ButtonBuilder()
         .setCustomId('close_ticket')
@@ -89,18 +107,13 @@ client.on('interactionCreate', async (interaction) => {
 
       const row = new ActionRowBuilder().addComponents(closeButton);
 
-      const embed = new EmbedBuilder()
-        .setTitle('🎫 Ticket Created')
-        .setDescription(`<@${interaction.user.id}> created this ticket! Please describe your issue.`)
-        .setColor('#FF0000')
-        .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji animat colț dreapta sus
-        .setImage('https://i.imgur.com/wBQj8Ki.gif') // banner jos
-        .setTimestamp();
+      await ticketChannel.send({ embeds: [ticketEmbed], components: [row] });
 
-      await ticketChannel.send({ embeds: [embed], components: [row] });
-
-      // Mesaj ephemer pentru user că ticketul a fost creat
-      await interaction.editReply({ content: `✅ Your ticket has been created: ${ticketChannel}`, ephemeral: true });
+      // Răspuns ephemer user
+      await interaction.editReply({ 
+        content: `✅ Your ticket has been received! Go to channel ${ticketChannel} to explain your problem.`, 
+        ephemeral: true 
+      });
 
     } catch (err) {
       console.error(err);
