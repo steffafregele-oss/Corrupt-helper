@@ -10,7 +10,9 @@ const {
   PermissionsBitField 
 } = require('discord.js');
 
-const express = require('express');
+const keepAlive = require('./keep_alive'); // import keep-alive
+keepAlive(); // pornește serverul keep-alive
+
 const client = new Client({ 
   intents: [
     GatewayIntentBits.Guilds, 
@@ -19,25 +21,19 @@ const client = new Client({
   ] 
 });
 
-// 2️⃣ Keep-alive server
-const app = express();
-const PORT = process.env.PORT || 3000;
-app.get("/", (req, res) => res.send("Bot is alive ✅"));
-app.listen(PORT, () => console.log(`✅ Keep-alive server running on port ${PORT}`));
-
-// 3️⃣ Token și ID rol admin
+// 2️⃣ Token și ID rol admin
 const TOKEN = process.env.DISCORD_BOT_TOKEN;
 const ADMIN_ROLE_ID = '1433970414706622504'; // rol admin
 
-// 4️⃣ Ticket counter
+// 3️⃣ Ticket counter
 let ticketCount = 1;
 
-// 5️⃣ Ready event
+// 4️⃣ Ready event
 client.once('ready', () => {
   console.log(`✅ Bot online as ${client.user.tag}`);
 });
 
-// 6️⃣ Comanda pentru ticket panel
+// 5️⃣ Comanda pentru ticket panel
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
 
@@ -49,7 +45,7 @@ client.on('messageCreate', async (message) => {
         "Our staff will assist you as soon as possible."
       )
       .setColor('#000000')
-      .setImage('https://i.imgur.com/EHpQ9Iv.gif'); // imaginea sub text
+      .setImage('https://i.imgur.com/EHpQ9Iv.gif'); // poza embed
 
     const button = new ButtonBuilder()
       .setCustomId('create_ticket')
@@ -62,49 +58,41 @@ client.on('messageCreate', async (message) => {
   }
 });
 
-// 7️⃣ Interaction listener
+// 6️⃣ Interaction listener
 client.on('interactionCreate', async (interaction) => {
   if (!interaction.isButton()) return;
 
   // Creează ticket
   if (interaction.customId === 'create_ticket') {
-    await interaction.deferReply({ ephemeral: true });
-
     const channelName = `ticket-${String(ticketCount).padStart(3, '0')}`;
     ticketCount++;
 
-    try {
-      const ticketChannel = await interaction.guild.channels.create({
-        name: channelName,
-        type: ChannelType.GuildText,
-        permissionOverwrites: [
-          { id: interaction.guild.roles.everyone, deny: [PermissionsBitField.Flags.ViewChannel] },
-          { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
-          { id: ADMIN_ROLE_ID, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
-        ]
-      });
+    const ticketChannel = await interaction.guild.channels.create({
+      name: channelName,
+      type: ChannelType.GuildText,
+      permissionOverwrites: [
+        { id: interaction.guild.roles.everyone, deny: [PermissionsBitField.Flags.ViewChannel] },
+        { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
+        { id: ADMIN_ROLE_ID, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] }
+      ]
+    });
 
-      const closeButton = new ButtonBuilder()
-        .setCustomId('close_ticket')
-        .setLabel('Close Ticket')
-        .setStyle(ButtonStyle.Danger);
+    const closeButton = new ButtonBuilder()
+      .setCustomId('close_ticket')
+      .setLabel('Close Ticket')
+      .setStyle(ButtonStyle.Danger);
 
-      const row = new ActionRowBuilder().addComponents(closeButton);
+    const row = new ActionRowBuilder().addComponents(closeButton);
 
-      const embed = new EmbedBuilder()
-        .setTitle('🎫 Ticket Created')
-        .setDescription(`<@${interaction.user.id}> created this ticket! Please describe your issue.`)
-        .setImage('https://i.imgur.com/EHpQ9Iv.gif')
-        .setColor('#FF0000')
-        .setTimestamp();
+    const embed = new EmbedBuilder()
+      .setTitle('🎫 Ticket Created')
+      .setDescription(`<@${interaction.user.id}> created this ticket! Please describe your issue.`)
+      .setColor('#FF0000')
+      .setImage('https://i.imgur.com/EHpQ9Iv.gif') // poza embed în ticket channel
+      .setTimestamp();
 
-      await ticketChannel.send({ embeds: [embed], components: [row] });
-      await interaction.editReply({ content: `✅ Your ticket has been created: ${ticketChannel}` });
-
-    } catch (err) {
-      console.error('Error creating ticket channel:', err);
-      await interaction.editReply({ content: '❌ Failed to create ticket. Check bot permissions.' });
-    }
+    await ticketChannel.send({ embeds: [embed], components: [row] });
+    await interaction.reply({ content: `✅ Your ticket has been created: ${ticketChannel}`, ephemeral: true });
   }
 
   // Închide ticket
@@ -116,10 +104,5 @@ client.on('interactionCreate', async (interaction) => {
   }
 });
 
-// 8️⃣ Login
-if (!TOKEN) {
-  console.error('❌ DISCORD_BOT_TOKEN is not set in environment variables!');
-  process.exit(1);
-}
-
+// 7️⃣ Login bot
 client.login(TOKEN);
