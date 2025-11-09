@@ -39,22 +39,26 @@ client.on('messageCreate', async (message) => {
 
   if (message.content.toLowerCase() === '!ticket panel set') {
     const embed = new EmbedBuilder()
-      .setTitle("<a:emoji_22:1437165310775132160>  SUPPORT TICKET SYSTEM  <a:emoji_22:1437165310775132160>")
+      // titlu: doar 1 emoji animat la inceput (emoji_23)
+      .setTitle(`<a:emoji_23:1437165438315532431> SUPPORT TICKET SYSTEM`)
+      // thumbnail: coroana animata (corrupt_crown)
+      .setThumbnail('https://cdn.discordapp.com/emojis/1437152941088702607.gif?size=80&quality=lossless')
       .setDescription(
-        "<a:corrupt_star1:1437146640661090335> Need help? Click the button below to create a support ticket.\n" +
-        "<a:corrupt_star1:1437146640661090335> Our staff team will assist you as soon as possible.\n" +
-        "<a:corrupt_star1:1437146640661090335> Please describe your issue clearly in the ticket.\n" +
-        "<a:corrupt_star1:1437146640661090335> Available 24/7 for your convenience!"
+        // fiecare linie incepe cu emoji_21 (animat)
+        `<a:emoji_21:1437163698161717468> Need help? Click the button below to create a support ticket.\n` +
+        `<a:emoji_21:1437163698161717468> Our staff team will assist you as soon as possible.\n` +
+        `<a:emoji_21:1437163698161717468> Please describe your issue clearly in the ticket.\n` +
+        `<a:emoji_21:1437163698161717468> Available 24/7 for your convenience!`
       )
       .setColor('#000000')
-      .setThumbnail('https://cdn.discordapp.com/emojis/1437165310775132160.gif') // emoji_22
-      .setImage('https://i.imgur.com/rCQ33gA.gif'); // banner stats
+      .setImage('https://i.imgur.com/rCQ33gA.gif'); // bannerul de la stats (jos)
 
     const button = new ButtonBuilder()
       .setCustomId('create_ticket')
       .setLabel('Create Ticket')
-      .setStyle(ButtonStyle.Secondary)
-      .setEmoji('1437146640661090335'); // corrupt_star1
+      .setStyle(ButtonStyle.Secondary) // baby blue
+      // emoji-ul de la buton: emoji_16 (animat)
+      .setEmoji({ id: '1437155312527347915' });
 
     const row = new ActionRowBuilder().addComponents(button);
 
@@ -91,16 +95,16 @@ client.on('interactionCreate', async (interaction) => {
         ]
       });
 
-      // Embed în canalul ticket
+      // Embed în canalul ticket (same style)
       const ticketEmbed = new EmbedBuilder()
-        .setTitle("<a:emoji_22:1437165310775132160>  TICKET CREATED  <a:emoji_22:1437165310775132160>")
+        .setTitle(`<a:emoji_23:1437165438315532431> TICKET CREATED`)
+        .setThumbnail('https://cdn.discordapp.com/emojis/1437152941088702607.gif?size=80&quality=lossless') // coroana
         .setDescription(
-          `<a:corrupt_star1:1437146640661090335> <@${interaction.user.id}> created this ticket!\n` +
-          "<a:corrupt_star1:1437146640661090335> Please describe your issue here in detail.\n" +
-          "<a:corrupt_star1:1437146640661090335> A staff member will respond shortly."
+          `<a:emoji_21:1437163698161717468> <@${interaction.user.id}> created this ticket!\n` +
+          `<a:emoji_21:1437163698161717468> Please describe your issue here in detail.\n` +
+          `<a:emoji_21:1437163698161717468> A staff member will respond shortly.`
         )
         .setColor('#000000')
-        .setThumbnail('https://cdn.discordapp.com/emojis/1437165310775132160.gif') // emoji_22
         .setImage('https://i.imgur.com/rCQ33gA.gif')
         .setTimestamp();
 
@@ -108,12 +112,14 @@ client.on('interactionCreate', async (interaction) => {
         .setCustomId('close_ticket')
         .setLabel('Close Ticket')
         .setStyle(ButtonStyle.Danger)
-        .setEmoji('1437146640661090335'); // corrupt_star1
+        // folosim tot emoji personalizat la buton (emoji_16) pentru consistenta
+        .setEmoji({ id: '1437155312527347915' });
 
       const row = new ActionRowBuilder().addComponents(closeButton);
 
       await ticketChannel.send({ embeds: [ticketEmbed], components: [row] });
 
+      // Răspuns ephemer user
       await interaction.editReply({ 
         content: `✅ Your ticket has been created! Go to ${ticketChannel} to describe your problem.`, 
         ephemeral: true 
