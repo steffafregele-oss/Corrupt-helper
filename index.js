@@ -22,7 +22,7 @@ const client = new Client({
 });
 
 // 2️⃣ Token și rol admin
-const TOKEN = process.env.DISCORD_BOT_TOKEN; // folosește numele corect al variabilei
+const TOKEN = process.env.DISCORD_BOT_TOKEN; 
 const ADMIN_ROLE_ID = '1433970414706622504';
 
 // 3️⃣ Ticket counter
@@ -39,21 +39,22 @@ client.on('messageCreate', async (message) => {
 
   if (message.content.toLowerCase() === '!ticket panel set') {
     const embed = new EmbedBuilder()
-      .setTitle('🎫 SUPPORT TICKET SYSTEM')
+      .setTitle("<a:emoji_22:1437165310775132160>  SUPPORT TICKET SYSTEM  <a:emoji_22:1437165310775132160>")
       .setDescription(
-        "Need Help? Click the button below to create a support ticket.\n" +
-        "Our staff team will assist you as soon as possible.\n" +
-        "Please describe your issue clearly in the ticket.\n" +
-        "Available 24/7 for your convenience!"
+        "<a:corrupt_star1:1437146640661090335> Need help? Click the button below to create a support ticket.\n" +
+        "<a:corrupt_star1:1437146640661090335> Our staff team will assist you as soon as possible.\n" +
+        "<a:corrupt_star1:1437146640661090335> Please describe your issue clearly in the ticket.\n" +
+        "<a:corrupt_star1:1437146640661090335> Available 24/7 for your convenience!"
       )
       .setColor('#000000')
-      .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji animat colț dreapta sus
-      .setImage('https://i.imgur.com/wBQj8Ki.gif'); // banner
+      .setThumbnail('https://cdn.discordapp.com/emojis/1437165310775132160.gif') // emoji_22
+      .setImage('https://i.imgur.com/rCQ33gA.gif'); // banner stats
 
     const button = new ButtonBuilder()
       .setCustomId('create_ticket')
       .setLabel('Create Ticket')
-      .setStyle(ButtonStyle.Secondary);
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji('1437146640661090335'); // corrupt_star1
 
     const row = new ActionRowBuilder().addComponents(button);
 
@@ -72,7 +73,6 @@ client.on('interactionCreate', async (interaction) => {
       const channelName = `ticket-${String(ticketCount).padStart(3, '0')}`;
       ticketCount++;
 
-      // Creează canalul cu permisiuni
       const ticketChannel = await interaction.guild.channels.create({
         name: channelName,
         type: ChannelType.GuildText,
@@ -93,25 +93,29 @@ client.on('interactionCreate', async (interaction) => {
 
       // Embed în canalul ticket
       const ticketEmbed = new EmbedBuilder()
-        .setTitle('🎫 Ticket Created')
-        .setDescription(`<@${interaction.user.id}> created this ticket! Please describe your issue here in detail.`)
-        .setColor('#FF0000')
-        .setThumbnail('https://cdn.discordapp.com/emojis/1431059075826712656.gif') // emoji colț dreapta sus
-        .setImage('https://i.imgur.com/wBQj8Ki.gif')
+        .setTitle("<a:emoji_22:1437165310775132160>  TICKET CREATED  <a:emoji_22:1437165310775132160>")
+        .setDescription(
+          `<a:corrupt_star1:1437146640661090335> <@${interaction.user.id}> created this ticket!\n` +
+          "<a:corrupt_star1:1437146640661090335> Please describe your issue here in detail.\n" +
+          "<a:corrupt_star1:1437146640661090335> A staff member will respond shortly."
+        )
+        .setColor('#000000')
+        .setThumbnail('https://cdn.discordapp.com/emojis/1437165310775132160.gif') // emoji_22
+        .setImage('https://i.imgur.com/rCQ33gA.gif')
         .setTimestamp();
 
       const closeButton = new ButtonBuilder()
         .setCustomId('close_ticket')
         .setLabel('Close Ticket')
-        .setStyle(ButtonStyle.Danger);
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji('1437146640661090335'); // corrupt_star1
 
       const row = new ActionRowBuilder().addComponents(closeButton);
 
       await ticketChannel.send({ embeds: [ticketEmbed], components: [row] });
 
-      // Răspuns ephemer user
       await interaction.editReply({ 
-        content: `✅ Your ticket has been received! Go to channel ${ticketChannel} to explain your problem.`, 
+        content: `✅ Your ticket has been created! Go to ${ticketChannel} to describe your problem.`, 
         ephemeral: true 
       });
 
@@ -123,7 +127,7 @@ client.on('interactionCreate', async (interaction) => {
 
   // Închide ticket
   if (interaction.customId === 'close_ticket') {
-    await interaction.reply({ content: '🔒 Closing ticket...', ephemeral: true });
+    await interaction.reply({ content: 'Closing ticket...', ephemeral: true });
     setTimeout(async () => {
       await interaction.channel.delete().catch(() => {});
     }, 2000);
