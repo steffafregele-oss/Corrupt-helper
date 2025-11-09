@@ -11,7 +11,7 @@ const {
 } = require('discord.js');
 
 const keepAlive = require('./keep_alive'); 
-keepAlive(); // pornește serverul keep-alive
+keepAlive();
 
 const client = new Client({ 
   intents: [
@@ -39,26 +39,26 @@ client.on('messageCreate', async (message) => {
 
   if (message.content.toLowerCase() === '!ticket panel set') {
     const embed = new EmbedBuilder()
-      // titlu: doar 1 emoji animat la inceput (emoji_23)
-      .setTitle(`<a:emoji_23:1437165438315532431> SUPPORT TICKET SYSTEM`)
-      // thumbnail: coroana animata (corrupt_crown)
+      // 🟡 Titlu cu 1 emoji animat la început
+      .setTitle(`<a:emoji_23:1437165438315532431>  SUPPORT TICKET SYSTEM`)
+      // 👑 Thumbnail (emoji coroana, colț dreapta sus)
       .setThumbnail('https://cdn.discordapp.com/emojis/1437152941088702607.gif?size=80&quality=lossless')
+      // 📋 Descriere aliniată
       .setDescription(
-        // fiecare linie incepe cu emoji_21 (animat)
-        `<a:emoji_21:1437163698161717468> Need help? Click the button below to create a support ticket.\n` +
-        `<a:emoji_21:1437163698161717468> Our staff team will assist you as soon as possible.\n` +
-        `<a:emoji_21:1437163698161717468> Please describe your issue clearly in the ticket.\n` +
-        `<a:emoji_21:1437163698161717468> Available 24/7 for your convenience!`
+        `<a:emoji_21:1437163698161717468>  Need help? Click the button below to create a support ticket.\n` +
+        `<a:emoji_21:1437163698161717468>  Our staff team will assist you as soon as possible.\n` +
+        `<a:emoji_21:1437163698161717468>  Please describe your issue clearly in the ticket.\n` +
+        `<a:emoji_21:1437163698161717468>  Available 24/7 for your convenience!`
       )
       .setColor('#000000')
-      .setImage('https://i.imgur.com/rCQ33gA.gif'); // bannerul de la stats (jos)
+      // 📸 Bannerul jos (de la stats)
+      .setImage('https://i.imgur.com/rCQ33gA.gif');
 
     const button = new ButtonBuilder()
       .setCustomId('create_ticket')
       .setLabel('Create Ticket')
-      .setStyle(ButtonStyle.Secondary) // baby blue
-      // emoji-ul de la buton: emoji_16 (animat)
-      .setEmoji({ id: '1437155312527347915' });
+      .setStyle(ButtonStyle.Secondary)
+      .setEmoji({ id: '1437155312527347915' }); // emoji_16
 
     const row = new ActionRowBuilder().addComponents(button);
 
@@ -95,14 +95,14 @@ client.on('interactionCreate', async (interaction) => {
         ]
       });
 
-      // Embed în canalul ticket (same style)
       const ticketEmbed = new EmbedBuilder()
-        .setTitle(`<a:emoji_23:1437165438315532431> TICKET CREATED`)
-        .setThumbnail('https://cdn.discordapp.com/emojis/1437152941088702607.gif?size=80&quality=lossless') // coroana
+        .setTitle(`<a:emoji_23:1437165438315532431>  TICKET CREATED`)
+        .setThumbnail('https://cdn.discordapp.com/emojis/1437152941088702607.gif?size=80&quality=lossless') // 👑
         .setDescription(
-          `<a:emoji_21:1437163698161717468> <@${interaction.user.id}> created this ticket!\n` +
-          `<a:emoji_21:1437163698161717468> Please describe your issue here in detail.\n` +
-          `<a:emoji_21:1437163698161717468> A staff member will respond shortly.`
+          `<a:emoji_21:1437163698161717468>  <@${interaction.user.id}> created this ticket!\n` +
+          `<a:emoji_21:1437163698161717468>  Please describe your issue here in detail.\n` +
+          `<a:emoji_21:1437163698161717468>  A staff member will respond shortly.\n` +
+          `<a:emoji_21:1437163698161717468>  Thank you for contacting support!`
         )
         .setColor('#000000')
         .setImage('https://i.imgur.com/rCQ33gA.gif')
@@ -112,14 +112,12 @@ client.on('interactionCreate', async (interaction) => {
         .setCustomId('close_ticket')
         .setLabel('Close Ticket')
         .setStyle(ButtonStyle.Danger)
-        // folosim tot emoji personalizat la buton (emoji_16) pentru consistenta
-        .setEmoji({ id: '1437155312527347915' });
+        .setEmoji({ id: '1437155312527347915' }); // emoji_16
 
       const row = new ActionRowBuilder().addComponents(closeButton);
 
       await ticketChannel.send({ embeds: [ticketEmbed], components: [row] });
 
-      // Răspuns ephemer user
       await interaction.editReply({ 
         content: `✅ Your ticket has been created! Go to ${ticketChannel} to describe your problem.`, 
         ephemeral: true 
