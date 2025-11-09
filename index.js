@@ -11,7 +11,7 @@ const {
 } = require('discord.js');
 
 const keepAlive = require('./keep_alive'); 
-keepAlive(); // Pornește serverul keep-alive
+keepAlive(); // pornește serverul keep-alive
 
 const client = new Client({ 
   intents: [
@@ -41,13 +41,13 @@ client.on('messageCreate', async (message) => {
     const embed = new EmbedBuilder()
       .setTitle('<a:emoji_23:1437165438315532431> SUPPORT TICKET SYSTEM')
       .setDescription(
-        `<:corrupt_star1:1437146640661090335> Need Help? Click the button below to create a support ticket.\n\n` +
-        `<:corrupt_star1:1437146640661090335> Our staff team will assist you as soon as possible.\n\n` +
-        `<:corrupt_star1:1437146640661090335> Please describe your issue clearly in the ticket.\n\n` +
-        `<:corrupt_star1:1437146640661090335> Available 24/7 for your convenience!`
+        `<a:emoji_21:1437163698161717468> Need Help? Click the button below to create a support ticket.\n\n` +
+        `<a:emoji_21:1437163698161717468> Our staff team will assist you as soon as possible.\n\n` +
+        `<a:emoji_21:1437163698161717468> Please describe your issue clearly in the ticket.\n\n` +
+        `<a:emoji_21:1437163698161717468> Available 24/7 for your convenience!`
       )
       .setColor('#89CFF0')
-      .setThumbnail('https://cdn.discordapp.com/emojis/1437152941088702607.gif') // 👑 Corrupt crown dreapta sus
+      .setThumbnail('https://cdn.discordapp.com/emojis/1437165310775132160.gif') // 👑 coroana animată dreapta sus
       .setImage('https://i.imgur.com/rCQ33gA.gif'); // Banner jos
 
     const button = new ButtonBuilder()
@@ -94,12 +94,12 @@ client.on('interactionCreate', async (interaction) => {
       const ticketEmbed = new EmbedBuilder()
         .setTitle('<a:emoji_23:1437165438315532431> TICKET CREATED')
         .setDescription(
-          `<:corrupt_star1:1437146640661090335> <@${interaction.user.id}> created this ticket!\n\n` +
-          `<:corrupt_star1:1437146640661090335> Please describe your issue in detail so staff can assist you.\n\n` +
-          `<:corrupt_star1:1437146640661090335> Staff will respond shortly.`
+          `<a:emoji_21:1437163698161717468> <@${interaction.user.id}> created this ticket!\n\n` +
+          `<a:emoji_21:1437163698161717468> Please describe your issue in detail so staff can assist you.\n\n` +
+          `<a:emoji_21:1437163698161717468> Staff will respond shortly.`
         )
         .setColor('#89CFF0')
-        .setThumbnail('https://cdn.discordapp.com/emojis/1437152941088702607.gif') // 👑 Corrupt crown dreapta sus
+        .setThumbnail('https://cdn.discordapp.com/emojis/1437165310775132160.gif') // 👑 coroana animată
         .setImage('https://i.imgur.com/rCQ33gA.gif')
         .setTimestamp();
 
@@ -111,6 +111,21 @@ client.on('interactionCreate', async (interaction) => {
       const row = new ActionRowBuilder().addComponents(closeButton);
 
       await ticketChannel.send({ embeds: [ticketEmbed], components: [row] });
+
+      // Mesaj DM către user
+      await interaction.user.send({
+        embeds: [
+          new EmbedBuilder()
+            .setTitle('<a:emoji_23:1437165438315532431> TICKET CREATED')
+            .setDescription(
+              `<a:emoji_21:1437163698161717468> Your support ticket has been created successfully.\n\n` +
+              `<a:emoji_21:1437163698161717468> Please check the server to describe your issue.`
+            )
+            .setColor('#89CFF0')
+            .setThumbnail('https://cdn.discordapp.com/emojis/1437165310775132160.gif')
+            .setImage('https://i.imgur.com/rCQ33gA.gif')
+        ]
+      }).catch(() => {}); // ignoră erorile DM dacă userul are mesajele private închise
 
       await interaction.editReply({ 
         content: `✅ Your ticket has been created! Go to ${ticketChannel} to describe your issue.`, 
